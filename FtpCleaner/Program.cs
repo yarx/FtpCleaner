@@ -5,9 +5,9 @@ namespace FtpCleaner
 {
     class MainClass
     {
-        private static string url;// = "ftp://sl76.web.hostpoint.ch";
-        private static string username;// = "fahrxl@yarx.ch";
-        private static string password;// = "zrNyKXnDE8y238cmvkdjVwr8CzNW4TdC";        
+        private static string url;
+        private static string username;
+        private static string password;      
 
         public static void Main(string[] args)
         {
