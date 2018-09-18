@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FtpClean": {
+      "commandName": "Project",
+      "commandLineArgs": "ftp://sl76.web.hostpoint.ch fahrxl@yarx.ch zrNyKXnDE8y238cmvkdjVwr8CzNW4TdC"
+    }
+  }
+}
