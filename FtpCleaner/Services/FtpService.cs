@@ -13,7 +13,7 @@ namespace FtpCleaner.Services
         private readonly NetworkCredential _credentials;
 
         // regex pattern which identifies all characters which are not part of the filename
-        private readonly Regex _ftpRegex = new Regex(".*[0-9][0-9]:[0-9][0-9] ");
+        private readonly Regex _ftpRegex = new Regex("^(?:[^ ]+ +){8}(.*)$");
 
         public FtpService(string url, string username, string password)
         {
@@ -24,7 +24,7 @@ namespace FtpCleaner.Services
         public Directory GetDirectory(string path)
         {
             // create directory list request and read the content of the response
-            FtpWebRequest listRequest = CreateFtpRequest(path, WebRequestMethods.Ftp.ListDirectoryDetails);         
+            FtpWebRequest listRequest = CreateFtpRequest(path, WebRequestMethods.Ftp.ListDirectoryDetails);
             FtpWebResponse listResponse = (FtpWebResponse)listRequest.GetResponse();
 
             Stream responseStream = listResponse.GetResponseStream();
@@ -50,7 +50,12 @@ namespace FtpCleaner.Services
                 bool isDirectory = trimmedString[0] == 'd';
 
                 // remove all characters which are not part of the name with regex pattern
-                var name = _ftpRegex.Replace(trimmedString, string.Empty);
+                var nameMatch = _ftpRegex.Match(trimmedString);
+
+                if (!nameMatch.Success)
+                    continue;
+
+                var name = nameMatch.Groups[1].Value;
 
                 // do not list directories with . or ..
                 if (name == "." || name == "..")
