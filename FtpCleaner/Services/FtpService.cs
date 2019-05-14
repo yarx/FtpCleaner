@@ -13,6 +13,7 @@ namespace FtpCleaner.Services
         private readonly NetworkCredential _credentials;
 
         // regex pattern which identifies all characters which are not part of the filename
+        // https://stackoverflow.com/questions/39704256/parsing-file-name-out-of-listdirectorydetails-with-regex
         private readonly Regex _ftpRegex = new Regex("^(?:[^ ]+ +){8}(.*)$");
 
         public FtpService(string url, string username, string password)
