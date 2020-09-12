@@ -6,4 +6,8 @@
     <RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentFTP" Version="32.4.4" />
+  </ItemGroup>
+
 </Project>
