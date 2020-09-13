@@ -19,7 +19,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         name: Upload Artifact
         with:
-          name: FtpClean${{ github.run_id }}
+          name: FtpCleaner_${{ github.run_id }}
           path: |
             outputfiles
             !*.pdb
