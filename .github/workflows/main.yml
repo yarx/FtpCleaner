@@ -1,0 +1,26 @@
+name: Publish
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  Publish:
+    runs-on: self-hosted
+    steps:
+      # CheckoutFiles
+      - uses: actions/checkout@v2
+        name: Checkout
+      # Publish Backend
+      - name: Publish Backend
+        run: dotnet publish -r win-x64 -c release -o outputfiles -p:PublishSingleFile=true /p:IncludeNativeLibrariesInSingleFile=true 
+      # Upload Artifact
+      - uses: actions/upload-artifact@v2
+        name: Upload Artifact
+        with:
+          name: FtpClean${{ github.run_id }}
+          path: |
+            outputfiles
+            !*.pdb
+            !*.json
