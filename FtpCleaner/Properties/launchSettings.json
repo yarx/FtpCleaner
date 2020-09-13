@@ -1,7 +1,16 @@
 {
   "profiles": {
-    "FtpClean": {
-      "commandName": "Project"
+    "FTP Clean": {
+      "commandName": "Project",
+      "commandLineArgs": "clean"
+    },
+    "FTP Upload": {
+      "commandName": "Project",
+      "commandLineArgs": "upload"
+    },
+    "FTP Upload Directory": {
+      "commandName": "Project",
+      "commandLineArgs": "upload -path bin"
     }
   }
 }

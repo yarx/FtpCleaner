@@ -1,60 +1,53 @@
-﻿using FluentFTP;
+﻿using FtpCleaner.Configuration;
 using FtpCleaner.Models;
 using FtpCleaner.Services;
+using Microsoft.Extensions.Configuration;
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FtpCleaner
 {
     class MainClass
     {
-        private static string url;
-        private static string username;
-        private static string password;
-
         public static async Task Main(string[] args)
         {
-            if (args.Length < 3 || args.Length == 4 || args.Length > 5)
-                throw new Exception("Please specify Url, Username and Password or Action, Path, Url, Username and Password as arguments.");
-
-            if (args.Length == 3)
+            var switchMappings = new Dictionary<string, string>()
             {
-                url = args[0];
-                username = args[1];
-                password = args[2];
+                { "-path", "Path" },
+                { "-host", "Url" },
+                { "-user", "Username" },
+                { "-pw", "Password" },
+            };
 
-                var token = new CancellationToken();
-                using (var conn = new FtpClient(url, username, password))
-                {
-                    await conn.ConnectAsync(token);
+            var configuration = new ConfigurationBuilder()
+                .AddUserSecrets(typeof(MainClass).Assembly)
+                .AddCommandLine(args, switchMappings)
+                .Build();
 
-                    // Remove the directory and all files and subdirectories inside it
-                    await conn.DeleteDirectoryAsync("/", token);
-                }
-            }
+            // check if ftp action is specified;
+            FtpAction action;
+            try { action = Enum.Parse<FtpAction>(args[0], true); }
+            catch { throw new Exception("Please specify FTP Action (clean or upload) as a first argument."); }
 
-            if (args.Length == 5)
+            var ftpInput = new FtpInput
             {
-                FtpAction action = Enum.Parse<FtpAction>(args[0], true);
-                var path = args[1];
-                url = args[2];
-                username = args[3];
-                password = args[4];
+                Action = action,
+                Path = configuration["Path"],
+                Url = configuration["Url"],
+                Username = configuration["Username"],
+                Password = configuration["Password"]
+            };
 
-                if (action == FtpAction.Upload)
-                {
-                    var current = Environment.CurrentDirectory;
-                    var uploadDir = path == "/" ? current : System.IO.Path.Combine(current, path);
+            var ftpService = new FtpService(ftpInput.Url, ftpInput.Username, ftpInput.Password);
 
-                    var token = new CancellationToken();
-                    using (var ftp = new FtpClient(url, username, password))
-                    {
-                        await ftp.ConnectAsync(token);
-                        await ftp.UploadDirectoryAsync(uploadDir, "/", FtpFolderSyncMode.Mirror);
-                    }
-                }
-            }
+            await ((ftpInput.Action, ftpInput.Path) switch
+            {
+                (FtpAction.Clean, _) => ftpService.Clean(),
+                (FtpAction.Upload, null) => ftpService.Upload(),
+                (FtpAction.Upload, _) => ftpService.Upload(ftpInput.Path),
+                _ => throw new Exception("Input seems not to be correct. Please verify command line arguments.")
+            });
         }
     }
 }
